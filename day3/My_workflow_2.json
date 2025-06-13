@@ -1,0 +1,176 @@
+{
+  "name": "My workflow 2",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "documentId": {
+          "__rl": true,
+          "value": "1ZnNelNq6KCGCgZvtfKSFFTjvkfb7i389RfRWVoGd2fI",
+          "mode": "list",
+          "cachedResultName": "work status",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1ZnNelNq6KCGCgZvtfKSFFTjvkfb7i389RfRWVoGd2fI/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1129108725,
+          "mode": "list",
+          "cachedResultName": "Form Responses 1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1ZnNelNq6KCGCgZvtfKSFFTjvkfb7i389RfRWVoGd2fI/edit#gid=1129108725"
+        },
+        "event": "rowUpdate",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTrigger",
+      "typeVersion": 1,
+      "position": [
+        -360,
+        0
+      ],
+      "id": "651a4fff-c4a4-4a05-b665-d94b7dc42b91",
+      "name": "Google Sheets Trigger",
+      "credentials": {
+        "googleSheetsTriggerOAuth2Api": {
+          "id": "SCrX0cTQEZgk4wJj",
+          "name": "Google Sheets Trigger account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all().map((item) => item.json);\n\n// Get the keys from the first object to use as headers\nconst headers = Object.keys(items[0]);\n\n// Create the header row\nlet markdownText = headers.join(\" | \") + \"\\n\";\n\n// Create the separator row\nmarkdownText += headers.map(() => \"---\").join(\" | \") + \"\\n\";\n\n// Create each data row\nitems.forEach((item) => {\n  const row = headers.map((header) => item[header]).join(\" | \");\n  markdownText += row + \"\\n\";\n});\n\nreturn { markdownText };"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -140,
+        0
+      ],
+      "id": "6e007331-5026-4d3b-95e0-78e732f11dee",
+      "name": "Code"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are an AI assistant that generates professional summary emails to management from a team lead.\n\nPlease generate a formal and clear daily report email for the date 10/06/2025. The report must be easy to read in standard email clients, without using markdown or HTML tables.\n\nStructure the report like this:\n\n1. Start with a subject line: \"Daily Work Update – 10/06/2025\"\n2. Address the management professionally.\n3. Summarize the number of people in each category: Completed, Blocked, Planned.\n4. Clearly list the names under each category with bullet points.\n\nHere is the data:\n{{ $json.markdownText }}\n\n\nMake the formatting very clear and human-readable for email. Use simple text lists and no markdown or tables.",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        60,
+        20
+      ],
+      "id": "96f18fd0-9e5b-44fa-bf6c-5b74022dcbb8",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.0-flash-001",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        100,
+        240
+      ],
+      "id": "bcec0166-bb50-40c9-9e09-d8f9c4243dc6",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "W4EwqJn2gt2FJy47",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "kalakutty140@gmail.com",
+        "subject": "hi",
+        "emailType": "text",
+        "message": "={{ $json.output }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        420,
+        20
+      ],
+      "id": "e249deec-28cf-4b15-8fe7-de5715b9f56c",
+      "name": "Gmail",
+      "webhookId": "316feeed-86f9-4d88-b62e-7323e4da5d66",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "ZnctNGQDWpy5xxBq",
+          "name": "Gmail account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Google Sheets Trigger": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Gmail",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "8b74e491-92ce-41c1-9e04-0bbaf6e75670",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "a86351d86e7cc0de9fd7e9dd70786885f1e0415bc2a720f323b0954cf4869bbd"
+  },
+  "id": "tdQelV3yhJZBs2aF",
+  "tags": []
+}
