@@ -1,0 +1,475 @@
+{
+  "name": "My workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "filters": {}
+      },
+      "type": "n8n-nodes-base.gmailTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -340,
+        0
+      ],
+      "id": "55b1d114-4457-4acc-822a-abe77cbb391d",
+      "name": "Gmail Trigger",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "ZnctNGQDWpy5xxBq",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "text": "please extract the data such as (name, email and leave reques)",
+        "attributes": {
+          "attributes": [
+            {
+              "name": "name",
+              "description": "={{ $json.snippet }}"
+            },
+            {
+              "name": "email",
+              "description": "={{ $json.snippet }}"
+            },
+            {
+              "name": "leave requested",
+              "description": "={{ $json.snippet }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.informationExtractor",
+      "typeVersion": 1.1,
+      "position": [
+        -140,
+        0
+      ],
+      "id": "ae8ce466-6507-4abd-8975-48bdb6754243",
+      "name": "Information Extractor"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.0-flash-001",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        -80,
+        180
+      ],
+      "id": "7a5b2ea3-66c8-48e4-909d-c75600f54a8c",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "W4EwqJn2gt2FJy47",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1qa8ZabrQHpWWystr8zNGrtx02THdFo4xmou3hOF_kLw",
+          "mode": "list",
+          "cachedResultName": "leave",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1qa8ZabrQHpWWystr8zNGrtx02THdFo4xmou3hOF_kLw/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1qa8ZabrQHpWWystr8zNGrtx02THdFo4xmou3hOF_kLw/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "name": "={{ $json.output.name }}",
+            "email": "={{ $json.output.email }}",
+            "leave requested": "={{ $json.output['leave requested'] }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "name",
+              "displayName": "name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "email",
+              "displayName": "email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "leave requested",
+              "displayName": "leave requested",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        220,
+        0
+      ],
+      "id": "bd235d70-2736-48eb-a273-7b5255fa0f82",
+      "name": "Google Sheets",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "KLM1OCffR0QMNOMc",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=you need to analyze the given input\nname: {{ $json.name }}\nemail:{{ $json.email }}\nleave:{{ $json['leave requested'] }} and access the google sheet tool and analyze to get the leave balance and accrroding to that say approve or not approve",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        440,
+        0
+      ],
+      "id": "a4d49682-ff34-449a-8469-94cac5b566b7",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1qa8ZabrQHpWWystr8zNGrtx02THdFo4xmou3hOF_kLw",
+          "mode": "list",
+          "cachedResultName": "leave",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1qa8ZabrQHpWWystr8zNGrtx02THdFo4xmou3hOF_kLw/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1412635474,
+          "mode": "list",
+          "cachedResultName": "Sheet2",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1qa8ZabrQHpWWystr8zNGrtx02THdFo4xmou3hOF_kLw/edit#gid=1412635474"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.6,
+      "position": [
+        600,
+        220
+      ],
+      "id": "0e36f59f-ce70-49d3-b99c-7dd6aaeed711",
+      "name": "Google Sheets1",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "KLM1OCffR0QMNOMc",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "5ce63c92-bb19-494c-806c-8a9d50837444",
+              "leftValue": "={{ $json.output }}",
+              "rightValue": "cannot",
+              "operator": {
+                "type": "string",
+                "operation": "notContains"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        800,
+        0
+      ],
+      "id": "f823f321-bb6b-4dac-b151-3b252adfb001",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "create a mail for not approving the leave request due to insufficient leave balance",
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.7,
+      "position": [
+        940,
+        80
+      ],
+      "id": "fcbf1038-ac9a-4cbf-b98f-83fbdcbbc1ee",
+      "name": "Basic LLM Chain"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.0-flash-001",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        1020,
+        240
+      ],
+      "id": "bc381b89-64f7-4b15-9a6d-63e2d4434619",
+      "name": "Google Gemini Chat Model1",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "W4EwqJn2gt2FJy47",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "create a mail for you leave has sanctioned",
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.7,
+      "position": [
+        1020,
+        -100
+      ],
+      "id": "f9a1330f-0c64-48db-b827-f8283ce62b6d",
+      "name": "Basic LLM Chain1"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Google Sheets').item.json.email }}",
+        "subject": "leave status",
+        "emailType": "text",
+        "message": "={{ $json.text }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        1277.5,
+        -100
+      ],
+      "id": "75a25a91-c458-43f5-a709-ccb169d228d2",
+      "name": "Gmail",
+      "webhookId": "7eba5c33-960c-4838-b6b5-5df77f6ab110",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "ZnctNGQDWpy5xxBq",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Google Sheets').item.json.email }}",
+        "subject": "hi",
+        "emailType": "text",
+        "message": "={{ $json.text }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        1300,
+        80
+      ],
+      "id": "b50c71e3-bf1f-467d-bfaa-3136c8f6089d",
+      "name": "Gmail1",
+      "webhookId": "df55dc62-cb15-43c3-b652-3acdd31d98f2",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "ZnctNGQDWpy5xxBq",
+          "name": "Gmail account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Gmail Trigger": {
+      "main": [
+        [
+          {
+            "node": "Information Extractor",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Information Extractor",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Information Extractor": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets1": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "Basic LLM Chain1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain1": {
+      "main": [
+        [
+          {
+            "node": "Gmail",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain": {
+      "main": [
+        [
+          {
+            "node": "Gmail1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "b0cf355a-ee1c-4264-8786-53ad8ba64ead",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "a86351d86e7cc0de9fd7e9dd70786885f1e0415bc2a720f323b0954cf4869bbd"
+  },
+  "id": "DgiwYG3JnjzFxwJH",
+  "tags": []
+}
