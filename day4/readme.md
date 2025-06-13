@@ -1,0 +1,2 @@
+https://app.relevanceai.com/agents/d7b62b/9633bb9f2283-4b9a-8df3-7eb7d580f008/d34e9ae6-464c-41ef-83b4-58e033b3d684/embed-chat?hide_tool_steps=false&hide_file_uploads=false&hide_conversation_list=false&bubble_style=agent&primary_color=%23685FFF&bubble_icon=pd%2Fchat&input_placeholder_text=Type+your+message...&hide_logo=false&hide_description=false
+https://app.relevanceai.com/agents/d7b62b/9633bb9f2283-4b9a-8df3-7eb7d580f008/d34e9ae6-464c-41ef-83b4-58e033b3d684/clone
