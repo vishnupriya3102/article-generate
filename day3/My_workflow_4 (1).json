@@ -1,0 +1,235 @@
+{
+  "name": "My workflow 4",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "documentId": {
+          "__rl": true,
+          "value": "1eXMEyYUaB61JJfCdNzoPEo1EhSwhZNiekm7ixhKPNOI",
+          "mode": "list",
+          "cachedResultName": "task",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1eXMEyYUaB61JJfCdNzoPEo1EhSwhZNiekm7ixhKPNOI/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1897261129,
+          "mode": "list",
+          "cachedResultName": "Form Responses 1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1eXMEyYUaB61JJfCdNzoPEo1EhSwhZNiekm7ixhKPNOI/edit#gid=1897261129"
+        },
+        "event": "rowAdded",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTrigger",
+      "typeVersion": 1,
+      "position": [
+        -120,
+        0
+      ],
+      "id": "c244a3f3-f679-498c-8b7c-47d05135da32",
+      "name": "Google Sheets Trigger",
+      "credentials": {
+        "googleSheetsTriggerOAuth2Api": {
+          "id": "SCrX0cTQEZgk4wJj",
+          "name": "Google Sheets Trigger account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "f5a1966f-c670-4b01-b5fb-4d44c7d83428",
+              "leftValue": "={{ $json.status }}",
+              "rightValue": "completed",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        100,
+        0
+      ],
+      "id": "14296351-ca17-4827-8fbc-3fa7737f359b",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Context:\nYou are an AI assistant that generates formal daily update emails for Scrum Masters. The email should inform them that certain employees have completed their assigned tasks.\n\nInputs Provided:\n\nName: {{ $json.name }}\n\nTask: {{ $json.task }}\nInstructions:\n\nCompose a concise, professional email to the Scrum Master.\n\nMention the employee's name and the task they completed.\n\nUse a formal yet positive tone.\n\nThe email should be in paragraph format (not bullet points).\n\nAdd a subject line like: Task Completion Update ",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        320,
+        -100
+      ],
+      "id": "5743d9a1-70e2-4823-b9b0-4fd3b0e241f8",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.0-flash-001",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        360,
+        100
+      ],
+      "id": "81b87371-ebc6-4672-83ce-ee9dc565378d",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "W4EwqJn2gt2FJy47",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "kalakutty140@gmail.com",
+        "subject": "update",
+        "emailType": "text",
+        "message": "={{ $json.output }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        740,
+        -80
+      ],
+      "id": "b74ace0c-6246-4771-ab37-c5dd8148e97f",
+      "name": "Gmail",
+      "webhookId": "b171d999-1d97-44ca-a266-3c4797ef8e4b",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "ZnctNGQDWpy5xxBq",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Context:\nYou are an AI assistant responsible for drafting formal reminder emails to Scrum Masters. The purpose of this email is to notify scrum master that specific employees have not yet completed their assigned tasks \n\nInputs Provided:\n\nName: {{ $json.name }}\n\nTask: {{ $json.task }}\n\nInstructions:\n\nGenerate a polite and professional email.\n\nClearly state the employee's name and the task that is still pending.\n\nPolitely suggest reminding the employee to complete the task at the earliest.\n\nUse a formal and respectful tone.\n\nEmail format should include a subject line like: Pending Task Reminder - [Employee Name] ",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        520,
+        100
+      ],
+      "id": "6297f32a-a15d-4803-887b-77f1e19979c6",
+      "name": "AI Agent1"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Google Sheets Trigger": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "AI Agent1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "AI Agent1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Gmail",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent1": {
+      "main": [
+        [
+          {
+            "node": "Gmail",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "29d2ecaa-15a7-4bd7-9a60-859f991b8f82",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "a86351d86e7cc0de9fd7e9dd70786885f1e0415bc2a720f323b0954cf4869bbd"
+  },
+  "id": "YjcY9crkq4O1zFU5",
+  "tags": []
+}
